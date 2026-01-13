@@ -398,6 +398,9 @@ mod x509;
 mod check;
 mod bs_debug;
 mod builder;
+/// Craftls - customizable TLS fingerprinting
+#[cfg(feature = "craft")]
+pub mod craft;
 pub mod enums;
 mod key_log;
 #[cfg(feature = "std")]

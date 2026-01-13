@@ -18,5 +18,9 @@ serde = { workspace = true }
 tokio = { workspace = true }
 webpki-roots = { workspace = true }
 
+[features]
+default = []
+craft = ["rustls/craft"]
+
 [lints]
 workspace = true

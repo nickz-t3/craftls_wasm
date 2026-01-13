@@ -705,6 +705,9 @@ impl TlsListElement for KeyShareEntry {
 pub(crate) struct SupportedProtocolVersions {
     pub(crate) tls13: bool,
     pub(crate) tls12: bool,
+    /// GREASE version for fingerprinting
+    #[cfg(feature = "craft")]
+    pub(crate) grease: Option<ProtocolVersion>,
 }
 
 impl SupportedProtocolVersions {
@@ -747,7 +750,12 @@ impl Codec<'_> for SupportedProtocolVersions {
             };
         }
 
-        Ok(Self { tls13, tls12 })
+        Ok(Self {
+            tls13,
+            tls12,
+            #[cfg(feature = "craft")]
+            grease: None,
+        })
     }
 }
 

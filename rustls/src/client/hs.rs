@@ -510,6 +510,8 @@ fn emit_client_hello_for_retry(
     let supported_versions = SupportedProtocolVersions {
         tls13: config.supports_version(ProtocolVersion::TLSv1_3),
         tls12: config.supports_version(ProtocolVersion::TLSv1_2) && !forbids_tls12,
+        #[cfg(feature = "craft")]
+        grease: None,
     };
 
     // should be unreachable thanks to config builder
@@ -673,6 +675,12 @@ fn emit_client_hello_for_retry(
     // but they also need to keep the same order as the previous ClientHello
     exts.order_seed = input.hello.extension_order_seed;
 
+    // Apply craft fingerprint patches to extensions if enabled
+    #[cfg(feature = "craft")]
+    config
+        .craft
+        .patch_extensions(cx, config, retryreq, &mut exts);
+
     let mut cipher_suites: Vec<_> = config
         .provider()
         .iter_cipher_suites()
@@ -681,6 +689,12 @@ fn emit_client_hello_for_retry(
             false => None,
         })
         .collect();
+
+    // Apply craft fingerprint patches to cipher suites if enabled
+    #[cfg(feature = "craft")]
+    config
+        .craft
+        .patch_cipher_suites(cx, &mut cipher_suites);
 
     if supported_versions.tls12 {
         // We don't do renegotiation at all, in fact.
