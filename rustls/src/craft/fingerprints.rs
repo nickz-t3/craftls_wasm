@@ -7,12 +7,11 @@
 extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
+use std::sync::LazyLock;
 
 use super::*;
 use crate::crypto::SignatureScheme;
 use crate::msgs::enums::ExtensionType;
-
-use static_init::dynamic;
 
 /// The signature algorithms of Chrome 108
 pub static CHROME_108_SIGNATURE_ALGO: &[SignatureScheme] = &[
@@ -27,8 +26,7 @@ pub static CHROME_108_SIGNATURE_ALGO: &[SignatureScheme] = &[
 ];
 
 /// Chrome 108 extension list
-#[dynamic]
-pub static CHROME_108_EXT: Vec<ExtensionSpec> = {
+pub static CHROME_108_EXT: LazyLock<Vec<ExtensionSpec>> = LazyLock::new(|| {
     use ExtensionSpec::*;
     use KeepExtension::*;
     vec![
@@ -69,14 +67,13 @@ pub static CHROME_108_EXT: Vec<ExtensionSpec> = {
         Craft(CraftExtension::Padding),
         Keep(Optional(ExtensionType::PreSharedKey)),
     ]
-};
+});
 
 /// Chrome cipher list
 ///
 /// This list includes CBC and TLS_RSA ciphers for correctness, even though
 /// they are not supported by rustls due to security concerns.
-#[dynamic]
-pub static CHROME_CIPHER: Vec<GreaseOrCipher> = {
+pub static CHROME_CIPHER: LazyLock<Vec<GreaseOrCipher>> = LazyLock::new(|| {
     use CipherSuite::*;
     vec![
         GreaseOrCipher::Grease,
@@ -90,47 +87,45 @@ pub static CHROME_CIPHER: Vec<GreaseOrCipher> = {
         TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256.into(),
         TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256.into(),
     ]
-};
+});
 
 /// Chrome 108 fingerprint set
-#[dynamic]
-pub static CHROME_108: FingerprintSet = FingerprintSet {
+pub static CHROME_108: LazyLock<FingerprintSet> = LazyLock::new(|| FingerprintSet {
     main: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: false,
     },
     test_alpn_http1: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: false,
     },
     test_no_alpn: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: false,
     },
-};
+});
 
 /// Chrome 112 fingerprint set (with extension shuffling)
-#[dynamic]
-pub static CHROME_112: FingerprintSet = FingerprintSet {
+pub static CHROME_112: LazyLock<FingerprintSet> = LazyLock::new(|| FingerprintSet {
     main: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: true,
     },
     test_alpn_http1: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: true,
     },
     test_no_alpn: Fingerprint {
-        extensions: &CHROME_108_EXT,
-        cipher: &CHROME_CIPHER,
+        extensions: &*CHROME_108_EXT,
+        cipher: &*CHROME_CIPHER,
         shuffle_extensions: true,
     },
-};
+});
 
 /// Safari 17.1 signature algorithms
 pub static SAFARI_17_1_SIGNATURE_ALGO: &[SignatureScheme] = &[
@@ -147,8 +142,7 @@ pub static SAFARI_17_1_SIGNATURE_ALGO: &[SignatureScheme] = &[
 ];
 
 /// Safari 17.1 cipher list
-#[dynamic]
-pub static SAFARI_17_1_CIPHERS: Vec<GreaseOrCipher> = {
+pub static SAFARI_17_1_CIPHERS: LazyLock<Vec<GreaseOrCipher>> = LazyLock::new(|| {
     use CipherSuite::*;
     vec![
         GreaseOrCipher::Grease,
@@ -162,11 +156,10 @@ pub static SAFARI_17_1_CIPHERS: Vec<GreaseOrCipher> = {
         TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256.into(),
         TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256.into(),
     ]
-};
+});
 
 /// Safari 17.1 extension list
-#[dynamic]
-pub static SAFARI_17_1_EXT: Vec<ExtensionSpec> = {
+pub static SAFARI_17_1_EXT: LazyLock<Vec<ExtensionSpec>> = LazyLock::new(|| {
     use ExtensionSpec::*;
     use KeepExtension::*;
     vec![
@@ -203,27 +196,26 @@ pub static SAFARI_17_1_EXT: Vec<ExtensionSpec> = {
         Craft(CraftExtension::Grease2),
         Craft(CraftExtension::Padding),
     ]
-};
+});
 
 /// Safari 17.1 fingerprint set
-#[dynamic]
-pub static SAFARI_17_1: FingerprintSet = FingerprintSet {
+pub static SAFARI_17_1: LazyLock<FingerprintSet> = LazyLock::new(|| FingerprintSet {
     main: Fingerprint {
-        extensions: &SAFARI_17_1_EXT,
-        cipher: &SAFARI_17_1_CIPHERS,
+        extensions: &*SAFARI_17_1_EXT,
+        cipher: &*SAFARI_17_1_CIPHERS,
         shuffle_extensions: false,
     },
     test_alpn_http1: Fingerprint {
-        extensions: &SAFARI_17_1_EXT,
-        cipher: &SAFARI_17_1_CIPHERS,
+        extensions: &*SAFARI_17_1_EXT,
+        cipher: &*SAFARI_17_1_CIPHERS,
         shuffle_extensions: false,
     },
     test_no_alpn: Fingerprint {
-        extensions: &SAFARI_17_1_EXT,
-        cipher: &SAFARI_17_1_CIPHERS,
+        extensions: &*SAFARI_17_1_EXT,
+        cipher: &*SAFARI_17_1_CIPHERS,
         shuffle_extensions: false,
     },
-};
+});
 
 /// Firefox 105 signature algorithms
 pub static FIREFOX_105_SIGNATURE_ALGO: &[SignatureScheme] = &[
@@ -241,8 +233,7 @@ pub static FIREFOX_105_SIGNATURE_ALGO: &[SignatureScheme] = &[
 ];
 
 /// Firefox 105 cipher list
-#[dynamic]
-pub static FIREFOX_105_CIPHERS: Vec<GreaseOrCipher> = {
+pub static FIREFOX_105_CIPHERS: LazyLock<Vec<GreaseOrCipher>> = LazyLock::new(|| {
     use CipherSuite::*;
     vec![
         TLS13_AES_128_GCM_SHA256.into(),
@@ -255,11 +246,10 @@ pub static FIREFOX_105_CIPHERS: Vec<GreaseOrCipher> = {
         TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384.into(),
         TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384.into(),
     ]
-};
+});
 
 /// Firefox 105 extension list
-#[dynamic]
-pub static FIREFOX_105_EXT: Vec<ExtensionSpec> = {
+pub static FIREFOX_105_EXT: LazyLock<Vec<ExtensionSpec>> = LazyLock::new(|| {
     use ExtensionSpec::*;
     use KeepExtension::*;
     vec![
@@ -297,24 +287,23 @@ pub static FIREFOX_105_EXT: Vec<ExtensionSpec> = {
         Craft(CraftExtension::Padding),
         Keep(Optional(ExtensionType::PreSharedKey)),
     ]
-};
+});
 
 /// Firefox 105 fingerprint set
-#[dynamic]
-pub static FIREFOX_105: FingerprintSet = FingerprintSet {
+pub static FIREFOX_105: LazyLock<FingerprintSet> = LazyLock::new(|| FingerprintSet {
     main: Fingerprint {
-        extensions: &FIREFOX_105_EXT,
-        cipher: &FIREFOX_105_CIPHERS,
+        extensions: &*FIREFOX_105_EXT,
+        cipher: &*FIREFOX_105_CIPHERS,
         shuffle_extensions: false,
     },
     test_alpn_http1: Fingerprint {
-        extensions: &FIREFOX_105_EXT,
-        cipher: &FIREFOX_105_CIPHERS,
+        extensions: &*FIREFOX_105_EXT,
+        cipher: &*FIREFOX_105_CIPHERS,
         shuffle_extensions: false,
     },
     test_no_alpn: Fingerprint {
-        extensions: &FIREFOX_105_EXT,
-        cipher: &FIREFOX_105_CIPHERS,
+        extensions: &*FIREFOX_105_EXT,
+        cipher: &*FIREFOX_105_CIPHERS,
         shuffle_extensions: false,
     },
-};
+});
