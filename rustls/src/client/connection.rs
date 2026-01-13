@@ -7,6 +7,8 @@ use pki_types::ServerName;
 use super::config::ClientConfig;
 use super::hs::{self, ClientHelloInput};
 use crate::client::EchStatus;
+#[cfg(feature = "craft")]
+use crate::craft::CraftConnectionData;
 use crate::common_state::{CommonState, Protocol, Side};
 use crate::conn::{ConnectionCore, UnbufferedConnectionCommon};
 #[cfg(doc)]
@@ -565,6 +567,8 @@ impl core::error::Error for EarlyDataError {}
 pub struct ClientConnectionData {
     pub(super) early_data: EarlyData,
     pub(super) ech_status: EchStatus,
+    #[cfg(feature = "craft")]
+    pub(crate) craft: CraftConnectionData,
 }
 
 impl ClientConnectionData {
@@ -572,6 +576,8 @@ impl ClientConnectionData {
         Self {
             early_data: EarlyData::new(),
             ech_status: EchStatus::NotOffered,
+            #[cfg(feature = "craft")]
+            craft: CraftConnectionData::new(),
         }
     }
 }

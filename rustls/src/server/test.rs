@@ -403,6 +403,8 @@ fn minimal_client_hello() -> ClientHelloPayload {
             supported_versions: Some(SupportedProtocolVersions {
                 tls12: true,
                 tls13: true,
+                #[cfg(feature = "craft")]
+                grease: None,
             }),
             key_shares: Some(vec![KeyShareEntry {
                 group: NamedGroup::X25519,

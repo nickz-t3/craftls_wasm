@@ -170,6 +170,10 @@ pub struct ClientConfig {
 
     /// How to offer Encrypted Client Hello (ECH). The default is to not offer ECH.
     pub(super) ech_mode: Option<EchMode>,
+
+    /// Craft options for TLS fingerprinting
+    #[cfg(feature = "craft")]
+    pub(crate) craft: crate::craft::CraftOptions,
 }
 
 impl ClientConfig {
@@ -247,6 +251,29 @@ impl ClientConfig {
     /// authentication.
     pub fn verifier(&self) -> &Arc<dyn verify::ServerVerifier> {
         &self.domain.verifier
+    }
+
+    /// Configure this client to use a specific TLS fingerprint.
+    ///
+    /// This allows the TLS ClientHello to match browser fingerprints like
+    /// Chrome, Firefox, or Safari, which can be useful for applications that
+    /// need to avoid TLS fingerprinting detection.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// use rustls::craft::CHROME_108;
+    ///
+    /// let config = ClientConfig::builder(provider)
+    ///     .with_root_certificates(root_store)
+    ///     .with_no_client_auth()
+    ///     .unwrap()
+    ///     .with_fingerprint(CHROME_108.builder());
+    /// ```
+    #[cfg(feature = "craft")]
+    pub fn with_fingerprint(mut self, fingerprint: crate::craft::FingerprintBuilder) -> Self {
+        self.craft = fingerprint.build();
+        self
     }
 
     pub(crate) fn supports_version(&self, v: ProtocolVersion) -> bool {
@@ -757,6 +784,8 @@ impl ConfigBuilder<ClientConfig, WantsClientCert> {
             cert_compressors: compress::default_cert_compressors().to_vec(),
             cert_compression_cache: Arc::new(compress::CompressionCache::default()),
             ech_mode: self.state.client_ech_mode,
+            #[cfg(feature = "craft")]
+            craft: crate::craft::CraftOptions::default(),
         })
     }
 }
